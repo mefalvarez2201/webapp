@@ -1,8 +1,15 @@
+"use client"
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMoon } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 const Navbar: React.FC = () => {
+  const { getTotalQuantity } = useCart();
+
+  const quantity = getTotalQuantity();
+
   return (
     <nav className="flex justify-between items-center h-16 bg-white text-black relative shadow-sm font-mono">
       <Link href="/" className="pl-8">
@@ -88,6 +95,13 @@ const Navbar: React.FC = () => {
             className="text-sm h-16 flex items-center px-4 hover:bg-black hover:text-white"
           >
             Cart
+            {quantity ? (
+              <>
+                <span className="bg-black text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span>{quantity}</span>
+                </span>
+              </>
+            ) : null}
           </Link>
         </li>
         <li>

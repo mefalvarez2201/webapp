@@ -17,6 +17,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           {products.map((product) => (
             <ProductCard
               key={product.id}
+              productId={product.id}
               slug={product.title}
               title={product.title}
               price={product.price.toNumber()}

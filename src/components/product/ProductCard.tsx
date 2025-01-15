@@ -1,5 +1,4 @@
-// src/components/product/ProductCard.tsx
-"use client"; // If using Next.js App Router and client-side interactivity
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -8,41 +7,74 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import { useCart } from "@/context/CartContext";
+import { useModal } from "@/context/ModalContext";
 
 interface ProductCardProps {
-  slug: string; // or id
+  productId: number;
+  slug: string;
   title: string;
   price: number;
   imageUrl: string;
-  onAddToCart?: () => void;
 }
 
 export default function ProductCard({
+  productId,
   slug,
   title,
   price,
   imageUrl,
-  onAddToCart,
 }: ProductCardProps) {
-  const handleClick = () => {
-    // This will throw a runtime error in the browser console
-    // and can be caught by React’s error boundary if you have one set up.
-    throw new Error("User-triggered error for testing!");
+  const { addItem } = useCart();
+  const { openModal, closeModal } = useModal();
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleAddToCart = () => {
+    addItem({
+      productId,
+      productName: title,
+      quantity: 1,
+      price,
+      imageUrl,
+    });
+
+    openModal(
+      <>
+        <p className="mb-4">"{title}" has been added to your cart.</p>
+        <div className="flex justify-end space-x-2">
+          <Link href="/cart">
+            <Button
+              label="View cart"
+              className={
+                "text-sm bg-black text-white p-2 hover:text-gray-300 border-2 border-white hover:border-gray-300"
+              }
+              onClick={closeModal}
+            />
+          </Link>
+          <Button
+            label="Continue Shopping"
+            className={
+              "text-sm bg-white text-black p-2 hover:bg-gray-300 border-2 border-black"
+            }
+            onClick={closeModal}
+          />
+        </div>
+      </>,
+      true,
+      2000,
+      "You have good taste!"
+    );
   };
 
-  const [isHovered, setIsHovered] = useState(false);
   return (
     <div className="border p-4 rounded hover:scale-105 transition-transform duration-300 ease-in-out">
       <Link href={`/product/${slug}`}>
-        {/* Image for the product thumbnail */}
-        <div className="w-full h-40 relative mb-2">
+        <div className="w-full aspect-square relative mb-2">
           <Image
             src={imageUrl}
             alt={title}
             fill
             className="object-cover rounded"
-            // "fill" + position ensures the image scales with the container
-            // or you could use width/height for a simpler approach
           />
         </div>
 
@@ -53,7 +85,7 @@ export default function ProductCard({
 
       <div className="flex justify-between items-center">
         <Button
-          onClick={handleClick}
+          onClick={handleAddToCart}
           label={"Add to cart"}
           className={
             "text-sm bg-white text-black p-2 hover:bg-black hover:text-white border-2 border-black hover:border-white"
@@ -64,11 +96,10 @@ export default function ProductCard({
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {isHovered ? (
-            <FontAwesomeIcon icon={faHeartSolid} className="w-5 h-5" />
-          ) : (
-            <FontAwesomeIcon icon={faHeart} className="w-5 h-5" />
-          )}
+          <FontAwesomeIcon
+            icon={isHovered ? faHeartSolid : faHeart}
+            className="w-5 h-5"
+          />
         </button>
       </div>
     </div>
